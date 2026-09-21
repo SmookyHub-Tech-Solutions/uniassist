@@ -1,0 +1,59 @@
+/* MAAUN UniAssist shared polish — complements the Tailwind CDN utilities. */
+:root { color-scheme: light; }
+html { scroll-behavior: smooth; }
+body { font-feature-settings: "cv11", "ss01"; }
+
+/* Refined focus visibility for keyboard users */
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible, summary:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* Sidebar links */
+.side-link { transition: background-color .15s ease, color .15s ease, transform .15s ease; }
+.side-link:active { transform: scale(.98); }
+
+/* Hamburger button bars -> X animation */
+#menuBtn .bar { display: block; width: 1.25rem; height: 2px; border-radius: 2px; background: currentColor; transition: transform .22s ease, opacity .18s ease; }
+#menuBtn.open .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+#menuBtn.open .bar:nth-child(2) { opacity: 0; }
+#menuBtn.open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Mobile slide-in drawer + backdrop */
+#mobileDrawer { transition: transform .3s cubic-bezier(.32, .72, .35, 1); will-change: transform; }
+#mobileDrawer.open { transform: translateX(0); }
+#drawerOverlay { transition: opacity .25s ease; }
+#drawerOverlay.show { opacity: 1; pointer-events: auto; }
+
+/* Cards: gentle lift on hover for linked cards */
+.lift { transition: box-shadow .18s ease, border-color .18s ease, transform .18s ease; }
+a.lift:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgb(15 42 67 / .12); }
+
+/* Tables */
+.data-table tbody tr { transition: background-color .12s ease; }
+
+/* Flash message entrance */
+@keyframes flash-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.flash { animation: flash-in .25s ease; }
+
+/* Slim scrollbars for sidebar + chat log */
+.slim-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.slim-scroll::-webkit-scrollbar-thumb { background: rgb(148 163 184 / .5); border-radius: 8px; }
+.slim-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* Chat typing dots */
+@keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+.typing-dot { animation: blink 1.2s infinite; display: inline-block; }
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+
+/* Stat card icon tile */
+.stat-tile { transition: transform .18s ease; }
+.stat-card:hover .stat-tile { transform: scale(1.08) rotate(-3deg); }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
