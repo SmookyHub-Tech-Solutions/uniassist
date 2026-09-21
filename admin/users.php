@@ -1,8 +1,16 @@
 <?php
+// =====================================================================
+// admin/users.php — manage every account (admins only).
+// Search/filter the user list; per row you can flip active/inactive
+// (never your own account) or set a new password; the bottom form
+// creates support-staff or admin accounts. Students self-register
+// elsewhere. Every change is written to the audit log.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('admin');
+$u = require_role('admin'); // Only admins past this line.
+// ---- 1. Handle the three buttons (toggle / reset password / create) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check($_POST['csrf'] ?? null);
     $do = $_POST['do'] ?? ''; $id = (int)($_POST['id'] ?? 0); $err = null;
@@ -58,14 +66,14 @@ page_head('Users', count($rows) . ' accounts');
     <td class="p-3"><?= pill($r['status'], $r['status'] === 'active' ? 'green' : 'slate') ?></td>
     <td class="p-3"><div class="flex flex-wrap gap-2 items-center">
       <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="toggle"><input type="hidden" name="id" value="<?= $r['id'] ?>"><button class="text-brand dark:text-blue-400">Toggle</button></form>
-      <form method="post" class="flex gap-1"><?= csrf_field() ?><input type="hidden" name="do" value="reset"><input type="hidden" name="id" value="<?= $r['id'] ?>">
-        <input name="password" type="password" placeholder="New password" class="rounded border border-slate-300 dark:border-slate-600 px-2 py-1 text-xs w-32"><button class="text-brand dark:text-blue-400 text-xs">Reset</button></form>
+      <form method="post" class="flex gap-1 items-center"><?= csrf_field() ?><input type="hidden" name="do" value="reset"><input type="hidden" name="id" value="<?= $r['id'] ?>">
+        <span class="relative inline-block"><input id="pw_reset_<?= $r['id'] ?>" name="password" type="password" placeholder="New password" class="rounded border border-slate-300 dark:border-slate-600 pl-2 pr-8 py-1 text-xs w-32"><?= pw_toggle_btn('pw_reset_' . $r['id']) ?></span><button class="text-brand dark:text-blue-400 text-xs">Reset</button></form>
     </div></td>
   </tr>
 <?php endforeach; ?></tbody></table></div>
 <h2 class="font-bold text-navy dark:text-white mb-2">Add support staff / admin</h2>
 <form method="post" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/70 rounded-2xl shadow-card p-5 flex flex-wrap gap-2"><?= csrf_field() ?><input type="hidden" name="do" value="create">
-  <input name="name" placeholder="Full name" required class="<?= $in ?>"><input name="email" type="email" placeholder="Email" required class="<?= $in ?>"><input name="password" type="password" placeholder="Password (8+, Aa1)" required class="<?= $in ?>">
+  <input name="name" placeholder="Full name" required class="<?= $in ?>"><input name="email" type="email" placeholder="Email" required class="<?= $in ?>"><span class="relative inline-block"><input id="pw_new" name="password" type="password" placeholder="Password (8+, Aa1)" required class="<?= $in ?> pr-10"><?= pw_toggle_btn('pw_new') ?></span>
   <select name="role" class="<?= $in ?>"><option value="support">Support staff</option><option value="admin">Administrator</option></select>
   <button class="rounded-xl bg-gradient-to-r from-brand to-blue-600 hover:from-blue-600 hover:to-brand text-white px-4 text-sm font-semibold shadow-sm transition">Create</button></form>
 <?php layout_bottom();

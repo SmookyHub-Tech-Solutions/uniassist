@@ -1,4 +1,11 @@
-/* MAAUN UniAssist shared polish — complements the Tailwind CDN utilities. */
+/* =====================================================================
+   assets/app.css — hand-written polish ON TOP of generated Tailwind.
+   Plain picture: keyboard focus rings (accessibility), sidebar-link and
+   card hover motion, the hamburger-to-X animation, the phone drawer's
+   slide/fade, chat typing dots, and a reduced-motion escape hatch.
+   (The big generated file is assets/tailwind.min.css — never edit it.)
+   ===================================================================== */
+/* Shared polish — complements the generated Tailwind utilities. */
 :root { color-scheme: light; }
 html { scroll-behavior: smooth; }
 body { font-feature-settings: "cv11", "ss01"; }

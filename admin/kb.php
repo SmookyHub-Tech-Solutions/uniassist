@@ -1,8 +1,15 @@
 <?php
+// =====================================================================
+// admin/kb.php — browse the knowledge base (admins only): the approved
+// question/answer cards the chatbot quotes. Search or filter by
+// category, then edit, flip active/inactive, or permanently delete an
+// entry. ("Add entry" lives on kb_edit.php.) All changes are audited.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('admin');
+$u = require_role('admin'); // Only admins past this line.
+// ---- 1. Handle delete / activate-deactivate buttons --------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check($_POST['csrf'] ?? null);
     $id = (int)($_POST['id'] ?? 0);

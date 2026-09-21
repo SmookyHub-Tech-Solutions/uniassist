@@ -1,7 +1,15 @@
 <?php
+// =====================================================================
+// admin/kb_edit.php — write or fix ONE knowledge-base entry (admins).
+// Opened blank ("Add entry"), on an existing entry (?id=), or from an
+// unanswered question (?from=, which pre-fills the question). Saving
+// checks the category/issue pairing, stores the entry, and — when it
+// came from the unanswered pile — marks that question "converted".
+// Creates and updates are audited.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
-$u = require_role('admin');
+$u = require_role('admin'); // Only admins past this line.
 $id = (int)($_GET['id'] ?? 0);
 $from = (int)($_GET['from'] ?? 0);   // unanswered question id
 $e = $id ? q('SELECT * FROM knowledge_base WHERE id=?', [$id])->fetch() : null;
@@ -12,6 +20,7 @@ if (!$id && $from && ($uq = q('SELECT question FROM unanswered_questions WHERE i
 $cats = q('SELECT id,name FROM categories ORDER BY name')->fetchAll();
 $issues = q('SELECT id,category_id,name FROM issues ORDER BY name')->fetchAll();
 
+// ---- 2. Handle Save: validate, then update OR insert -------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check($_POST['csrf'] ?? null);
     $d = [(int)$_POST['category_id'], (int)$_POST['issue_id'] ?: null, trim($_POST['question'] ?? ''), trim($_POST['answer'] ?? ''), trim($_POST['keywords'] ?? ''), $_POST['status'] === 'inactive' ? 'inactive' : 'active'];

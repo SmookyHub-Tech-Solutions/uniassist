@@ -1,4 +1,11 @@
 <?php
+// =====================================================================
+// includes/auth_page.php — the pretty split-screen shell used ONLY by
+// the login and register pages (logged-out visitors): a navy promo
+// panel on the left, a white card holding the form on the right.
+// auth_top() opens it, auth_bottom() closes it, field() draws one
+// labelled input box. It also carries the dark-mode toggle.
+// =====================================================================
 function auth_top(string $title, string $heading, string $sub): void { ?><!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0F2A43">
@@ -6,6 +13,7 @@ function auth_top(string $title, string $heading, string $sub): void { ?><!DOCTY
 <title><?= e($title) ?> · <?= APP_NAME ?></title>
 <script>try{if((localStorage.getItem('uniassist-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark')document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="stylesheet" href="<?= url('assets/tailwind.min.css') ?>">
+<link rel="stylesheet" href="<?= url('assets/fa/css/all.min.css') ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= url('assets/app.css') ?>">
@@ -15,7 +23,7 @@ function auth_top(string $title, string $heading, string $sub): void { ?><!DOCTY
   <div class="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-brand/20 blur-3xl"></div>
   <div class="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-teal-600/20 blur-3xl"></div>
   <div class="relative">
-    <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-brand to-teal-600 flex items-center justify-center text-3xl shadow-pop mb-6">🎓</div>
+    <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-brand to-teal-600 flex items-center justify-center text-3xl shadow-pop mb-6"><i class="fa-solid fa-graduation-cap text-white"></i></div>
     <h1 class="text-4xl font-extrabold tracking-tight"><?= APP_NAME ?></h1>
     <p class="mt-3 text-slate-300 max-w-sm leading-relaxed">Your intelligent academic support assistant. Understand → Guide → Retrieve → Resolve → Escalate.</p>
     <ul class="mt-8 space-y-3 text-sm text-slate-200">
@@ -28,20 +36,32 @@ function auth_top(string $title, string $heading, string $sub): void { ?><!DOCTY
 </div>
 <div class="flex items-center justify-center p-6 py-12 relative bg-slate-100 dark:bg-slate-800 dark:bg-slate-950">
   <button id="themeBtn" type="button" aria-label="Toggle dark mode"
-    class="absolute top-4 right-4 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:bg-slate-800 p-2.5 text-slate-500 dark:text-slate-400 dark:text-amber-300 shadow-sm transition active:scale-95">🌙</button>
+    class="absolute top-4 right-4 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-2.5 text-slate-500 dark:text-amber-300 shadow-sm transition active:scale-95"><i class="fa-solid fa-moon"></i></button>
   <div class="w-full max-w-sm">
-    <div class="md:hidden flex items-center gap-2.5 mb-6"><div class="h-10 w-10 rounded-xl bg-gradient-to-br from-brand to-teal-600 flex items-center justify-center text-xl">🎓</div><span class="font-extrabold text-navy dark:text-white"><?= APP_NAME ?></span></div>
+    <div class="md:hidden flex items-center gap-2.5 mb-6"><div class="h-10 w-10 rounded-xl bg-gradient-to-br from-brand to-teal-600 flex items-center justify-center text-xl"><i class="fa-solid fa-graduation-cap text-white"></i></div><span class="font-extrabold text-navy dark:text-white"><?= APP_NAME ?></span></div>
     <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-pop border border-slate-200 dark:border-slate-700/70 dark:border-slate-700/70 p-7">
     <h2 class="text-xl font-extrabold text-navy dark:text-white tracking-tight"><?= e($heading) ?></h2>
     <p class="text-sm text-slate-500 dark:text-slate-400 mb-5 mt-0.5"><?= e($sub) ?></p>
     <?php if ($f = flash()): ?><div role="alert" class="flash mb-4 rounded-xl border-l-4 <?= $f['type']==='success'?'border-green-500':'border-red-500' ?> bg-slate-50 dark:bg-slate-800 px-3 py-2.5 text-sm <?= $f['type']==='success'?'text-green-700 dark:text-green-300':'text-red-700 dark:text-red-300' ?>"><?= e($f['msg']) ?></div><?php endif;
 }
-function auth_bottom(): void { echo '</div><p class="text-center text-xs text-slate-400 mt-5">🎓 ' . e(APP_NAME) . '</p></div></div>'
+function auth_bottom(): void { echo '</div><p class="text-center text-xs text-slate-400 mt-5"><i class="fa-solid fa-graduation-cap"></i> ' . e(APP_NAME) . '</p></div></div>'
   . '<script>(function(){var t=document.getElementById("themeBtn");if(!t)return;'
-  . 'function paint(){var dark=document.documentElement.classList.contains("dark");t.textContent=dark?"☀":"🌙";}'
+  . 'function paint(){var dark=document.documentElement.classList.contains("dark");t.innerHTML=dark?\'<i class="fa-solid fa-sun"></i>\':\'<i class="fa-solid fa-moon"></i>\';}'
   . 't.addEventListener("click",function(){var dark=document.documentElement.classList.toggle("dark");try{localStorage.setItem("uniassist-theme",dark?"dark":"light");}catch(e){}paint();});paint();})();</script>'
+  . '<script src="' . url('assets/toggle-password.js') . '"></script>'
   . '</body></html>'; }
-function field(string $name, string $label, string $type = 'text', string $val = ''): void {
+function field(string $name, string $label, string $type = 'text', string $val = '', bool $toggle = false): void {
+    // Draw one labelled input box. Pass $toggle=true with a password type
+    // to add the traditional show/hide eye inside the box.
+    $cls = 'mt-1.5 w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition';
+    if ($toggle && $type === 'password') {
+        $id = 'fld_' . preg_replace('/[^a-z0-9]+/i', '_', $name);
+        echo '<label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">' . e($label)
+            . '<span class="relative block mt-1.5">'
+            . '<input id="' . $id . '" name="' . e($name) . '" type="password" value="' . e($val) . '" required autocomplete="current-password" class="' . $cls . ' pr-11">'
+            . pw_toggle_btn($id) . '</span></label>';
+        return;
+    }
     echo '<label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">' . e($label) .
-         '<input name="' . e($name) . '" type="' . e($type) . '" value="' . e($val) . '" required class="mt-1.5 w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition"></label>';
+         '<input name="' . e($name) . '" type="' . e($type) . '" value="' . e($val) . '" required class="' . $cls . '"></label>';
 }

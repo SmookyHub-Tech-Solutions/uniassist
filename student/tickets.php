@@ -1,8 +1,15 @@
 <?php
+// =====================================================================
+// student/tickets.php — "My Tickets": every support ticket THIS student
+// ever raised (students only), newest first. Tickets are born in the AI
+// Assistant when the bot can't resolve something; this page just lists
+// and links them. An empty mailbox gets a friendly empty-state card.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
-require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('student');
+require_once __DIR__ . '/../includes/tickets.php'; // For status colours.
+$u = require_role('student'); // Only students past this line.
+// ---- 1. Fetch only this student's tickets, newest first ----------------
 $rows = q('SELECT t.*, c.name cat FROM support_tickets t LEFT JOIN categories c ON c.id=t.category_id WHERE t.student_id=? ORDER BY t.id DESC', [$u['id']])->fetchAll();
 layout_top('My Tickets', 'tickets');
 page_head('My Tickets', 'Create tickets from the AI Assistant when it can\'t resolve your enquiry.');

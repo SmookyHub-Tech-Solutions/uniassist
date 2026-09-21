@@ -1,9 +1,18 @@
 <?php
+// =====================================================================
+// database/setup.php — FIRST-RUN installer. Visit it ONCE in the browser
+// (or `php database/setup.php`) to create all tables and seed demo data:
+// 3 logins (admin/support/student, all password Password123), the topic
+// menu, starter knowledge answers and one student's demo results.
+// Afterwards DELETE this file or block it — anyone who can open it can
+// see it, and re-running is refused once users exist (delete the .sqlite
+// file to start over).
 // Run once: http://localhost/uniassist/database/setup.php  (delete or protect afterwards)
 require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/helpers.php'; // For grade_points() below.
 $pdo = db();
 
+// ---- 1. Create every table (IF NOT EXISTS = safe to re-open) -----------
 $pdo->exec("
 CREATE TABLE IF NOT EXISTS users(
   id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, matric_number TEXT UNIQUE, email TEXT UNIQUE NOT NULL,
@@ -52,6 +61,9 @@ CREATE TABLE IF NOT EXISTS unanswered_questions(
 if ((int)q('SELECT COUNT(*) c FROM users')->fetch()['c'] > 0) { exit('Already set up. Delete database/uniassist.sqlite to reset.'); }
 
 // ---- Users (demo password for all: Password123) ----
+// ---- 2. Seed the three demo logins (same password for all) -------------
+// admin@ / support@ / student@maaun.edu.ng — see the printed note at the
+// end of this file. The student row's id is kept for the demo results.
 $pw = password_hash('Password123', PASSWORD_DEFAULT);
 q('INSERT INTO users(name,matric_number,email,password,role) VALUES(?,?,?,?,?)', ['System Admin', null, 'admin@maaun.edu.ng', $pw, 'admin']);
 q('INSERT INTO users(name,matric_number,email,password,role) VALUES(?,?,?,?,?)', ['Support Officer', null, 'support@maaun.edu.ng', $pw, 'support']);
@@ -59,17 +71,20 @@ q('INSERT INTO users(name,matric_number,email,password,role) VALUES(?,?,?,?,?)',
 $sid = (int)db()->lastInsertId();
 
 // ---- Categories & issues ----
+// ---- 3. Seed the chatbot's topic menu (categories + issues) -------------
+// These codes are what the AI is allowed to answer with — plain words
+// here, e.g. "view_result", become button labels for students.
 $cats = [
- ['results','Results & GPA','📊',[['view_result','View Result'],['missing_result','Missing Result'],['incorrect_result','Incorrect Result'],['gpa','GPA'],['cgpa','CGPA']]],
- ['registration','Course Registration','📚',[['cannot_register','Unable to Register'],['registration_deadline','Registration Deadline'],['add_drop','Add/Drop Courses']]],
- ['exams','Examinations','📝',[['exam_procedure','Exam Procedure'],['exam_clearance','Exam Clearance']]],
- ['graduation','Graduation','🎓',[['grad_requirements','Graduation Requirements']]],
- ['siwes','SIWES','🏭',[['siwes_requirements','SIWES Requirements']]],
- ['calendar','Academic Calendar','📅',[['calendar_info','Calendar Information']]],
- ['fees','Fees & Payments','💰',[['fees_info','Fees Information']]],
- ['transcript','Transcript','📄',[['transcript_request','Request a Transcript']]],
- ['profile','Student Profile','👤',[['profile_update','Update Profile']]],
- ['student_id','Student ID','🪪',[['id_card','ID Card Issues']]],
+ ['results','Results & GPA','fa-solid fa-chart-column',[['view_result','View Result'],['missing_result','Missing Result'],['incorrect_result','Incorrect Result'],['gpa','GPA'],['cgpa','CGPA']]],
+ ['registration','Course Registration','fa-solid fa-book-open',[['cannot_register','Unable to Register'],['registration_deadline','Registration Deadline'],['add_drop','Add/Drop Courses']]],
+ ['exams','Examinations','fa-solid fa-file-pen',[['exam_procedure','Exam Procedure'],['exam_clearance','Exam Clearance']]],
+ ['graduation','Graduation','fa-solid fa-graduation-cap',[['grad_requirements','Graduation Requirements']]],
+ ['siwes','SIWES','fa-solid fa-industry',[['siwes_requirements','SIWES Requirements']]],
+ ['calendar','Academic Calendar','fa-solid fa-calendar-days',[['calendar_info','Calendar Information']]],
+ ['fees','Fees & Payments','fa-solid fa-money-bill-wave',[['fees_info','Fees Information']]],
+ ['transcript','Transcript','fa-solid fa-file-lines',[['transcript_request','Request a Transcript']]],
+ ['profile','Student Profile','fa-solid fa-user',[['profile_update','Update Profile']]],
+ ['student_id','Student ID','fa-solid fa-id-card',[['id_card','ID Card Issues']]],
 ];
 $catId = [];
 foreach ($cats as [$code,$name,$icon,$issues]) {
@@ -78,6 +93,9 @@ foreach ($cats as [$code,$name,$icon,$issues]) {
     foreach ($issues as [$ic,$in]) q('INSERT INTO issues(category_id,code,name) VALUES(?,?,?)', [$cid,$ic,$in]);
 }
 // ---- Knowledge base (PLACEHOLDER content: replace with real MAAUN information via admin panel) ----
+// ---- 4. Seed starter knowledge answers (PLACEHOLDERS) ------------------
+// Generic, safe wording to be replaced with real MAAUN information via
+// the admin panel. Keywords power the no-AI fallback matcher.
 $kb = [
  ['registration','Unable to Register','How do I register my courses?','Ensure your registration clearance (fees and departmental approval) is complete, then log in to the student portal and select your courses for the semester. If registration is still unavailable, contact Student Support.','course registration register courses cannot register registration unavailable'],
  ['registration','Registration Deadline','When does course registration close?','Registration deadlines are published on the academic calendar each semester. Late registration may attract a penalty. Please confirm the current dates with the Registry.','registration deadline close closing late registration'],
@@ -97,6 +115,7 @@ foreach ($kb as [$cc,$issueName,$qn,$ans,$kw]) {
     q('INSERT INTO knowledge_base(category_id,issue_id,question,answer,keywords) VALUES(?,?,?,?,?)', [$catId[$cc],$iid,$qn,$ans,$kw]);
 }
 // ---- Demo academic records ----
+// ---- 5. Seed demo results for the demo student (drives CGPA/GPA) -------
 $recs = [
  ['CSC 301','Operating Systems',3,'B','First Semester','2024/2025'],
  ['CSC 303','Database Systems',3,'A','First Semester','2024/2025'],

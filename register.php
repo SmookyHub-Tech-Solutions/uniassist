@@ -1,12 +1,24 @@
 <?php
+// =====================================================================
+// register.php — new student sign-up (public page, logged-out only).
+// A student types name, matric number, SCHOOL email and a password.
+// The page checks every rule (see "1. Validate" below), saves the
+// account, writes the event to the audit log, and sends them to login.
+// The form below also gives live help: an email hint, a password
+// checklist, show/hide-password eyes, and a Register button that only
+// wakes up when everything is valid (the server re-checks anyway).
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/auth_page.php';
-if (current_user()) redirect(home_for(current_user()['role']));
+if (current_user()) redirect(home_for(current_user()['role'])); // Already signed in? Go home.
 
+// ---- 1. Handle the submitted form (runs only after clicking Register) --
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check($_POST['csrf'] ?? null);
     $name = trim($_POST['name'] ?? ''); $matric = strtoupper(trim($_POST['matric'] ?? ''));
     $email = strtolower(trim($_POST['email'] ?? '')); $pw = $_POST['password'] ?? '';
+// ---- 2. Validate everything, first problem wins ------------------------
+// Order matters: name -> matric shape -> real email -> SCHOOL domain ->
+// password strength -> passwords match -> not already registered.
     $err = null;
     if ($name === '' || strlen($name) > 100) $err = 'Enter your full name.';
     elseif (!preg_match('#^MAAUN/\d{2}/[A-Z]{2,4}/\d{3,4}$#', $matric)) $err = 'Matric format should look like MAAUN/23/CSC/049.';
@@ -16,6 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif ($pw !== ($_POST['password2'] ?? '')) $err = 'Passwords do not match.';
     elseif (q('SELECT 1 FROM users WHERE matric_number=? OR email=?', [$matric, $email])->fetch()) $err = 'Matric number or email already registered.';
     if ($err) { flash($err); redirect('register.php'); }
+    // ---- 2. Save the new account -------------------------------------
+    // Passwords are never stored as typed: password_hash() scrambles it
+    // into a one-way code, so even a database leak reveals nothing usable.
     q('INSERT INTO users(name,matric_number,email,password,role) VALUES(?,?,?,?,?)', [$name, $matric, $email, password_hash($pw, PASSWORD_DEFAULT), 'student']);
     $nid = (int)db()->lastInsertId();
     audit('auth.register', 'user', $nid, "$name <$email> ($matric)", ['id' => $nid, 'name' => $name, 'role' => 'student']);
@@ -26,11 +41,17 @@ auth_top('Register', 'Create your account', 'Student registration · school emai
 ?>
 <form method="post" id="regForm" novalidate><?= csrf_field() ?>
   <?php field('name', 'Full name'); field('matric', 'Matric number (MAAUN/23/CSC/049)'); ?>
+  <!-- School email box + live hint (the script below colours this green/red). -->
   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">School email
     <input id="regEmail" name="email" type="email" required placeholder="you@<?= e(STUDENT_EMAIL_DOMAIN) ?>"
       class="mt-1.5 w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition"></label>
   <p id="emailHint" class="text-xs mt-1 mb-3 text-slate-400">Must end with @<?= e(STUDENT_EMAIL_DOMAIN) ?></p>
-  <?php field('password', 'Password', 'password'); ?>
+  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Password
+    <span class="relative block mt-1.5">
+      <input id="regPw1" name="password" type="password" required autocomplete="new-password" placeholder="8+ characters, Aa1"
+        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 pl-3.5 pr-11 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition">
+      <?= pw_toggle_btn('regPw1') ?>
+    </span></label>
   <ul id="pwList" class="text-xs space-y-1.5 mb-3 -mt-1">
     <li data-rule="len" class="flex items-center gap-2 text-slate-500 dark:text-slate-400"><span class="dot">○</span>At least <?= PW_MIN_LEN ?> characters</li>
     <li data-rule="lower" class="flex items-center gap-2 text-slate-500 dark:text-slate-400"><span class="dot">○</span>A lowercase letter (a–z)</li>
@@ -39,8 +60,11 @@ auth_top('Register', 'Create your account', 'Student registration · school emai
     <li data-rule="match" class="flex items-center gap-2 text-slate-500 dark:text-slate-400"><span class="dot">○</span>Passwords match</li>
   </ul>
   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Confirm password
-    <input id="regPw2" name="password2" type="password" required autocomplete="new-password"
-      class="mt-1.5 w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition"></label>
+    <span class="relative block mt-1.5">
+      <input id="regPw2" name="password2" type="password" required autocomplete="new-password"
+        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 pl-3.5 pr-11 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition">
+      <?= pw_toggle_btn('regPw2') ?>
+    </span></label>
   <button id="regBtn" class="w-full rounded-xl bg-gradient-to-r from-brand to-blue-600 hover:from-blue-600 hover:to-brand text-white font-semibold py-2.5 text-sm shadow-sm transition active:scale-[.99] disabled:opacity-50 disabled:cursor-not-allowed">Register</button>
 </form>
 <script>
@@ -73,6 +97,7 @@ auth_top('Register', 'Create your account', 'Student registration · school emai
   }
   ['input','change'].forEach(function(ev){ pw.addEventListener(ev, check); pw2.addEventListener(ev, check); email.addEventListener(ev, check); });
   form.addEventListener('submit', function(e){ if(!check()){ e.preventDefault(); } });
+  // Show/hide eyes are handled by the shared assets/toggle-password.js.
   check();
 })();
 </script>

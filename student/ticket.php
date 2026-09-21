@@ -1,12 +1,23 @@
 <?php
+// =====================================================================
+// student/ticket.php — ONE support ticket, student side (students only).
+// Shows the ticket, the chatbot chat that caused it, and the reply
+// thread. The student can reply unless the ticket is CLOSED; replying
+// to a SOLVED ticket automatically reopens it (staff see it again).
+// Ownership is enforced: other students' tickets answer 404, as if
+// they never existed (never a revealing "forbidden" message).
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('student');
+$u = require_role('student'); // Only students past this line.
 $id = (int)($_GET['id'] ?? 0);
 $t = q('SELECT * FROM support_tickets WHERE id=? AND student_id=?', [$id, $u['id']])->fetch();   // ownership check
 if (!$t) { http_response_code(404); exit('Ticket not found.'); }
 
+// ---- 2. Handle a student reply ------------------------------------------
+// Closed tickets stay silent; anything else saves the reply, and a reply
+// on a SOLVED ticket reopens it (back to IN PROGRESS) so staff look again.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check($_POST['csrf'] ?? null);
     $msg = trim($_POST['message'] ?? '');

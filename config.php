@@ -1,9 +1,17 @@
 <?php
+// =====================================================================
+// config.php — the app's settings file (loaded on every single page).
+// Plain-English tour: app name, web address auto-detection, database
+// file location, chatbot (Gemini) key + model, and sign-up rules.
+// NON-TECHNICAL READERS: this is the "control panel" — safe values to
+// change are APP_NAME, GEMINI_MODEL and STUDENT_EMAIL_DOMAIN. Never
+// paste the secret API key here; it lives in the git-ignored `.env`.
 // ---- MAAUN UniAssist configuration ----
 define('APP_NAME', 'MAAUN UniAssist');
 define('BASE_URL', (function () {
-    // Auto-detect so the app works both under htdocs (/uniassist) and when
-    // served directly from the project root with `php -S` (base = '').
+    // Where does the app live on the web? Auto-detect: empty when the
+    // project folder itself is served (php -S), "/uniassist" when it sits
+    // inside htdocs (XAMPP). Every link/redirect is built from this.
     $docRoot = isset($_SERVER['DOCUMENT_ROOT'])
         ? rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']), '/') : '';
     $appDir = str_replace('\\', '/', __DIR__);
@@ -32,7 +40,9 @@ if (!getenv('GEMINI_API_KEY')) {
 define('GEMINI_API_KEY', getenv('GEMINI_API_KEY') ?: '');
 define('GEMINI_MODEL', 'gemini-3.6-flash');
 
-// Confidence thresholds
+// Confidence thresholds: the bot's self-grading scale.
+// >= HIGH: answer straight. < LOW: admit defeat, offer a ticket.
+// In between: double-check ("did you mean...?") before answering.
 define('CONF_HIGH', 0.75);   // >= answer
 define('CONF_LOW', 0.40);    // <  escalate, in between = clarify
 

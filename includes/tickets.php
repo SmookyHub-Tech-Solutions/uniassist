@@ -1,4 +1,12 @@
 <?php
+// =====================================================================
+// includes/tickets.php — everything support tickets share, so staff and
+// student pages never drift apart: status_badge() colours each ticket
+// state, fmt_date() prints friendly dates, render_transcript() shows the
+// read-only chatbot chat that caused the ticket, render_thread() shows
+// the back-and-forth replies, add_ticket_message() saves one reply, and
+// reply_form() draws the reply box.
+// =====================================================================
 function status_badge(string $s): string {
     $c = ['OPEN' => 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
           'IN PROGRESS' => 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
@@ -38,6 +46,8 @@ function render_thread(int $ticketId, string $viewerType): void {
 <?php }
 
 function add_ticket_message(int $ticketId, int $senderId, string $type, string $text): void {
+    // Save one reply (from a student or staff) and stamp the ticket as
+    // freshly updated so it floats to the top of ticket lists.
     q('INSERT INTO ticket_messages(ticket_id,sender_id,sender_type,message) VALUES(?,?,?,?)', [$ticketId, $senderId, $type, $text]);
     q('UPDATE support_tickets SET updated_at=CURRENT_TIMESTAMP WHERE id=?', [$ticketId]);
 }

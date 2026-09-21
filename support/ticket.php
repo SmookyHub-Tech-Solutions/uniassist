@@ -1,8 +1,16 @@
 <?php
+// =====================================================================
+// support/ticket.php — ONE ticket, staff side (support + admins).
+// Shows the student, the chatbot chat that caused the ticket, and the
+// reply thread. Workflow with guard rails: an OPEN ticket must be
+// "accepted" first (assigns it to you); only the owner (or an admin)
+// can reply or move it along OPEN -> IN PROGRESS -> SOLVED -> CLOSED
+// (reopening back to IN PROGRESS is allowed). Every step is audited.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('support', 'admin');
+$u = require_role('support', 'admin'); // Support staff (and admins) only.
 $id = (int)($_GET['id'] ?? 0);
 $t = q('SELECT t.*, s.name sname, s.matric_number, s.email semail, a.name aname FROM support_tickets t JOIN users s ON s.id=t.student_id LEFT JOIN users a ON a.id=t.assigned_to WHERE t.id=?', [$id])->fetch();
 if (!$t) { http_response_code(404); exit('Ticket not found.'); }
@@ -10,6 +18,9 @@ if (!$t) { http_response_code(404); exit('Ticket not found.'); }
 $isOwner = $u['role'] === 'admin' || (int)$t['assigned_to'] === (int)$u['id'];
 $next = ['OPEN' => [], 'IN PROGRESS' => ['SOLVED'], 'SOLVED' => ['CLOSED', 'IN PROGRESS'], 'CLOSED' => []];
 
+// ---- 2. Handle staff buttons: accept / reply / move state --------------
+// Only the ticket's owner (or an admin) gets past the guard below; every
+// accepted ticket, reply and state change is written to the audit log.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check($_POST['csrf'] ?? null);
     $do = $_POST['do'] ?? '';

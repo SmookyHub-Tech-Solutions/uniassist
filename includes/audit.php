@@ -1,8 +1,18 @@
 <?php
+// =====================================================================
+// includes/audit.php — the app's security camera.
+// audit() writes one line to the audit_log table: WHO did WHAT, to
+// WHICH item, WHEN, and from which computer (IP address). The table is
+// created automatically the first time it is needed, and logging can
+// never crash a page (any error is silently swallowed on purpose).
+// Admins read the log on the "Audit Log" page.
+// =====================================================================
 require_once __DIR__ . '/db.php';
 
 /* ---------- Audit log: who did what, when ---------- */
 function audit_log_table(): void {
+    // Create the audit_log table if it doesn't exist yet, then remember
+    // that it's done so we don't check again on this page load.
     static $done = false;
     if ($done) return; $done = true;
     db()->exec("CREATE TABLE IF NOT EXISTS audit_log(

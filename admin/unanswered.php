@@ -1,8 +1,15 @@
 <?php
+// =====================================================================
+// admin/unanswered.php — questions that beat the chatbot (admins only).
+// Every time the bot admits defeat it files the question here (repeats
+// counted). Admins turn the good ones into knowledge-base entries (which
+// teaches the bot) or dismiss/restore noise. Dismissals are audited.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('admin');
+$u = require_role('admin'); // Only admins past this line.
+// ---- 1. Handle dismiss / restore buttons -------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check($_POST['csrf'] ?? null);
     $to = ($_POST['do'] ?? '') === 'dismiss' ? 'dismissed' : 'new';
@@ -27,6 +34,6 @@ page_head('Unanswered Questions', $all ? 'Every recorded question' : 'Questions 
         <button name="do" value="<?= $r['status'] === 'dismissed' ? 'restore' : 'dismiss' ?>" class="text-slate-600 dark:text-slate-300"><?= $r['status'] === 'dismissed' ? 'Restore' : 'Dismiss' ?></button></form>
     </div>
   </div>
-<?php endforeach; if (!$rows) empty_state('Nothing here. 🎉'); ?>
+<?php endforeach; if (!$rows) empty_state('Nothing here — you are all caught up.'); ?>
 </div>
 <?php layout_bottom();

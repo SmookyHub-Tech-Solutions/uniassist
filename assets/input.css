@@ -1,3 +1,6 @@
+/* Tailwind entry file: these three lines pull in the whole framework.
+   Build it with: ./node_modules/.bin/tailwindcss -i assets/input.css -o assets/tailwind.min.css --minify
+   (Our own hand-written styles live separately in assets/app.css.) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

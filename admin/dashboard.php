@@ -1,9 +1,16 @@
 <?php
+// =====================================================================
+// admin/dashboard.php — the admin's control tower (admins only).
+// Plain picture: headline counts (students, chats, tickets...), four
+// performance rates (resolution, escalation, feedback, speed), bar
+// charts of the most-asked topics, plus which AI mode is running and
+// the latest audit-log activity. All numbers are counted live.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('admin');
-function one(string $sql, array $p = []) { return q($sql, $p)->fetchColumn(); }
+$u = require_role('admin'); // Only admins past this line.
+function one(string $sql, array $p = []) { return q($sql, $p)->fetchColumn(); } // One-number shortcut.
 
 $stats = [
   'Students' => one("SELECT COUNT(*) FROM users WHERE role='student'"),
@@ -34,14 +41,14 @@ function bars(array $rows): void {
   if (!$rows) echo '<p class="text-sm text-slate-500 dark:text-slate-400">No data yet.</p>';
 }
 layout_top('Admin Dashboard', 'dashboard');
-$icons = ['Students' => '👨‍🎓', 'Conversations' => '💬', 'Questions asked' => '❓', 'Knowledge entries' => '📚', 'Open tickets' => '🎫', 'In progress' => '🔄', 'Solved' => '✅', 'Unanswered' => '❔'];
+$icons = ['Students' => 'fa-solid fa-user-graduate', 'Conversations' => 'fa-solid fa-comments', 'Questions asked' => 'fa-solid fa-circle-question', 'Knowledge entries' => 'fa-solid fa-book-open', 'Open tickets' => 'fa-solid fa-ticket', 'In progress' => 'fa-solid fa-arrows-rotate', 'Solved' => 'fa-solid fa-check', 'Unanswered' => 'fa-solid fa-circle-exclamation'];
 $tiles = ['Students' => 'from-violet-500 to-purple-700', 'Conversations' => 'from-blue-500 to-brand', 'Questions asked' => 'from-amber-500 to-orange-600', 'Knowledge entries' => 'from-teal-500 to-emerald-700', 'Open tickets' => 'from-rose-500 to-red-600', 'In progress' => 'from-sky-500 to-cyan-600', 'Solved' => 'from-green-500 to-emerald-600', 'Unanswered' => 'from-slate-500 to-slate-700'];
 page_head('Admin Dashboard', 'Assistant performance, workload and recent activity');
 ?>
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 <?php foreach ($stats as $l => $n): ?>
   <div class="stat-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/70 rounded-2xl p-4 shadow-card flex items-center gap-3">
-    <div class="stat-tile h-11 w-11 shrink-0 rounded-xl bg-gradient-to-br <?= $tiles[$l] ?? 'from-navy to-slate-700' ?> flex items-center justify-center text-xl shadow-sm"><?= $icons[$l] ?? '📊' ?></div>
+    <div class="stat-tile h-11 w-11 shrink-0 rounded-xl bg-gradient-to-br <?= $tiles[$l] ?? 'from-navy to-slate-700' ?> flex items-center justify-center text-white shadow-sm"><i class="<?= $icons[$l] ?? 'fa-solid fa-chart-column' ?>"></i></div>
     <div class="min-w-0"><div class="text-xs text-slate-500 dark:text-slate-400 truncate"><?= e($l) ?></div><div class="text-2xl font-extrabold text-navy dark:text-white tracking-tight"><?= (int)$n ?></div></div>
   </div>
 <?php endforeach; ?>

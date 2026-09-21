@@ -1,8 +1,15 @@
 <?php
+// =====================================================================
+// student/history.php — a student's past chatbot chats (students only).
+// Newest first, each card showing the opening question, its topic and
+// message count. Tapping one replays the full chat (conversation.php).
+// Students can only ever see their OWN chats (enforced below).
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
-require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('student');
+require_once __DIR__ . '/../includes/tickets.php'; // For friendly dates.
+$u = require_role('student'); // Only students past this line.
+// ---- 1. Fetch only this student's chats that contain a real question ---
 $rows = q("SELECT c.*, cat.name cat,
    (SELECT message FROM messages m WHERE m.conversation_id=c.id AND m.sender='student' ORDER BY m.id LIMIT 1) first_q,
    (SELECT COUNT(*) FROM messages m WHERE m.conversation_id=c.id) n

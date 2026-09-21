@@ -1,7 +1,15 @@
 <?php
+// =====================================================================
+// admin/categories.php — the chatbot's menu of topics (admins only).
+// Categories group issues; issues become the AI's allowed intents AND
+// the guided buttons students tap. You can add, rename, or
+// activate/deactivate either level (codes must stay lowercase with
+// underscores). Every change is audited.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
-$u = require_role('admin');
+$u = require_role('admin'); // Only admins past this line.
+// ---- 1. Handle the six buttons (add / rename / flip, × category/issue)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check($_POST['csrf'] ?? null);
     $do = $_POST['do'] ?? ''; $err = null;
@@ -10,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($do === 'add_cat') {
             if (!preg_match('/^[a-z0-9_]{2,40}$/', $code) || $name === '') $err = 'Code (lowercase letters, numbers, underscore) and name are required.';
             else {
-                q('INSERT INTO categories(code,name,icon) VALUES(?,?,?)', [$code, mb_substr($name, 0, 60), mb_substr(trim($_POST['icon'] ?? '') ?: '📌', 0, 8)]);
+                q('INSERT INTO categories(code,name,icon) VALUES(?,?,?)', [$code, mb_substr($name, 0, 60), mb_substr(trim($_POST['icon'] ?? '') ?: 'fa-solid fa-bookmark', 0, 60)]);
                 audit('category.create', 'category', (int)db()->lastInsertId(), "$code · $name");
             }
         } elseif ($do === 'add_issue') {
@@ -43,12 +51,12 @@ layout_top('Categories & Issues', 'categories');
 $in = 'rounded-xl border border-slate-300 dark:border-slate-600 px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition';
 page_head('Categories & Issues', count($cats) . ' categories');
 ?>
-<div class="rounded-2xl border border-blue-200 bg-blue-50/70 dark:bg-blue-950/60 p-4 mb-5 text-sm text-slate-600 dark:text-slate-300 shadow-card">💡 The AI's list of possible intents is built from issue codes automatically. Only the built-in record issues (cgpa, gpa, view_result, missing_result, incorrect_result) have special database behaviour; every other issue shows its linked knowledge-base answer.</div>
+<div class="rounded-2xl border border-blue-200 bg-blue-50/70 dark:bg-blue-950/60 p-4 mb-5 text-sm text-slate-600 dark:text-slate-300 shadow-card"><i class="fa-solid fa-lightbulb text-blue-500"></i> The AI's list of possible intents is built from issue codes automatically. Only the built-in record issues (cgpa, gpa, view_result, missing_result, incorrect_result) have special database behaviour; every other issue shows its linked knowledge-base answer.</div>
 <?php foreach ($cats as $c): ?>
   <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/70 rounded-2xl shadow-card p-5 mb-4">
     <div class="flex flex-wrap items-center gap-3 mb-3">
       <form method="post" class="flex gap-2 items-center"><?= csrf_field() ?><input type="hidden" name="do" value="rename_cat"><input type="hidden" name="id" value="<?= $c['id'] ?>">
-        <span><?= e($c['icon']) ?></span><input name="name" value="<?= e($c['name']) ?>" class="<?= $in ?> font-semibold"><button class="text-sm text-brand dark:text-blue-400">Rename</button></form>
+        <span class="font-semibold"><i class="<?= e($c['icon']) ?> fa-fw text-slate-500 dark:text-slate-400 w-5 text-center"></i></span><input name="name" value="<?= e($c['name']) ?>" class="<?= $in ?> font-semibold"><button class="text-sm text-brand dark:text-blue-400">Rename</button></form>
       <span class="text-xs text-slate-400 font-mono"><?= e($c['code']) ?></span>
       <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="toggle_cat"><input type="hidden" name="id" value="<?= $c['id'] ?>">
         <button class="text-xs px-2 py-0.5 rounded-full <?= $c['status'] === 'active' ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300' ?>"><?= e($c['status']) ?></button></form>
@@ -69,5 +77,5 @@ page_head('Categories & Issues', count($cats) . ' categories');
   </div>
 <?php endforeach; ?>
 <form method="post" class="bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-600 rounded-2xl p-5 flex flex-wrap gap-2"><?= csrf_field() ?><input type="hidden" name="do" value="add_cat">
-  <input name="icon" placeholder="Icon" class="<?= $in ?> w-20"><input name="code" placeholder="category_code" class="<?= $in ?>"><input name="name" placeholder="Category name" class="<?= $in ?>"><button class="rounded-xl bg-gradient-to-r from-brand to-blue-600 hover:from-blue-600 hover:to-brand text-white px-4 py-2 text-sm font-semibold shadow-sm transition">+ Add category</button></form>
+  <input name="icon" placeholder="FA icon e.g. fa-solid fa-tag" title="Font Awesome class, e.g. fa-solid fa-tag" class="<?= $in ?> w-56"><input name="code" placeholder="category_code" class="<?= $in ?>"><input name="name" placeholder="Category name" class="<?= $in ?>"><button class="rounded-xl bg-gradient-to-r from-brand to-blue-600 hover:from-blue-600 hover:to-brand text-white px-4 py-2 text-sm font-semibold shadow-sm transition">+ Add category</button></form>
 <?php layout_bottom();

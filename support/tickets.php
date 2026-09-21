@@ -1,9 +1,15 @@
 <?php
+// =====================================================================
+// support/tickets.php — the shared ticket queue (support + admins).
+// Search by ticket number/subject/matric and filter by state. Each row
+// links to the full ticket. Staff "accept" open tickets there, which
+// assigns the ticket to them and moves it to IN PROGRESS.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
-require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('support', 'admin');
-$allowed = ['OPEN', 'IN PROGRESS', 'SOLVED', 'CLOSED'];
+require_once __DIR__ . '/../includes/tickets.php'; // Badges + dates.
+$u = require_role('support', 'admin'); // Support staff (and admins) only.
+$allowed = ['OPEN', 'IN PROGRESS', 'SOLVED', 'CLOSED']; // The ticket lifecycle, in order.
 $f = in_array($_GET['status'] ?? '', $allowed, true) ? $_GET['status'] : '';
 $search = trim($_GET['q'] ?? '');
 $sql = 'SELECT t.*, s.name sname, s.matric_number, a.name aname FROM support_tickets t JOIN users s ON s.id=t.student_id LEFT JOIN users a ON a.id=t.assigned_to WHERE 1=1';

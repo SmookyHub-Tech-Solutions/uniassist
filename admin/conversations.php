@@ -1,11 +1,19 @@
 <?php
+// =====================================================================
+// admin/conversations.php — read-only window into student chats
+// (admins only). The list shows only chats where the student actually
+// wrote something (newest first, with the opening question preview);
+// opening one replays every message, stamped with what the bot thought
+// each reply meant (intent + confidence %). Nothing can be edited here.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('admin');
-$view = (int)($_GET['id'] ?? 0);
+$u = require_role('admin'); // Only admins past this line.
+$view = (int)($_GET['id'] ?? 0); // A chat to replay? (0 = just the list)
 layout_top('Conversations', 'conversations');
 if ($view) {
+    // ---- Single-chat replay mode ---------------------------------------
     $c = q('SELECT c.*, u.name, u.matric_number FROM conversations c JOIN users u ON u.id=c.user_id WHERE c.id=?', [$view])->fetch();
     if (!$c) exit('Not found.');
     echo '<a href="' . url('admin/conversations.php') . '" class="text-sm text-brand dark:text-blue-400">← All conversations</a>';
@@ -19,6 +27,7 @@ if ($view) {
     }
     echo '</div>'; layout_bottom(); exit;
 }
+// ---- Chat-list mode: every chat with a real student message in it -----
 $rows = q("SELECT c.*, u.name, u.matric_number, (SELECT COUNT(*) FROM messages m WHERE m.conversation_id=c.id) n,
   (SELECT message FROM messages m WHERE m.conversation_id=c.id AND m.sender='student' ORDER BY m.id LIMIT 1) first_q
   FROM conversations c JOIN users u ON u.id=c.user_id WHERE EXISTS(SELECT 1 FROM messages m WHERE m.conversation_id=c.id AND m.sender='student') ORDER BY c.id DESC LIMIT 200")->fetchAll();

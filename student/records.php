@@ -1,8 +1,15 @@
 <?php
+// =====================================================================
+// student/records.php — a student's official results table (students).
+// READ-ONLY report card: every course, units and grade, grouped by
+// session/semester, with the live CGPA up top. Corrections are never
+// made here — the page says to contact Student Support instead.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
-require_once __DIR__ . '/../includes/chatbot.php';
-$u = require_role('student');
+require_once __DIR__ . '/../includes/chatbot.php'; // For the CGPA maths.
+$u = require_role('student'); // Only students past this line.
+// ---- 1. Pull this student's rows + CGPA ---------------------------------
 $rows = q('SELECT * FROM academic_records WHERE student_id=? ORDER BY session, semester, course_code', [$u['id']])->fetchAll();
 $c = student_cgpa((int)$u['id']);
 layout_top('Academic Records', 'records');

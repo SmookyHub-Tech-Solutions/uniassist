@@ -1,8 +1,15 @@
 <?php
+// =====================================================================
+// support/dashboard.php — the support team's home screen (support +
+// admins). Five live counters (tickets by state + "assigned to me") and
+// the 8 newest tickets with their students. From here staff dive into
+// the ticket queue or a single ticket.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
-require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('support', 'admin');
+require_once __DIR__ . '/../includes/tickets.php'; // Badges + dates.
+$u = require_role('support', 'admin'); // Support staff (and admins) only.
+// ---- 1. Count tickets per state + this staffer's workload --------------
 $counts = ['OPEN' => 0, 'IN PROGRESS' => 0, 'SOLVED' => 0, 'CLOSED' => 0];
 foreach (q('SELECT status, COUNT(*) n FROM support_tickets GROUP BY status')->fetchAll() as $r) $counts[$r['status']] = (int)$r['n'];
 $mine = (int)q("SELECT COUNT(*) n FROM support_tickets WHERE assigned_to=? AND status='IN PROGRESS'", [$u['id']])->fetch()['n'];

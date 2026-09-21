@@ -1,10 +1,18 @@
 <?php
+// =====================================================================
+// admin/audit.php — the security logbook viewer (admins only).
+// Every sign-in, admin change and ticket event (see includes/audit.php)
+// can be searched and filtered here by text, action type, staff role
+// and date, newest first, 50 per page. Read-only: nobody can edit
+// or delete history from this screen.
+// =====================================================================
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
-require_once __DIR__ . '/../includes/tickets.php';
-$u = require_role('admin');
+require_once __DIR__ . '/../includes/tickets.php'; // For friendly dates.
+$u = require_role('admin'); // Only admins past this line.
 
-audit_log_table();
+audit_log_table(); // Make sure the logbook exists before reading it.
+// ---- 1. Collect the visitor's filters ----------------------------------
 $actions = q('SELECT DISTINCT action FROM audit_log ORDER BY action')->fetchAll(PDO::FETCH_COLUMN);
 $roles = ['admin', 'support', 'student'];
 
