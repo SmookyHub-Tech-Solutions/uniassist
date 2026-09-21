@@ -9,10 +9,10 @@ page_head('My Tickets', 'Create tickets from the AI Assistant when it can\'t res
 ?>
 <div class="space-y-3">
 <?php foreach ($rows as $t): ?>
-  <a href="<?= url('student/ticket.php?id=' . $t['id']) ?>" class="lift block bg-white border border-slate-200/70 hover:border-brand rounded-2xl p-4 shadow-card">
+  <a href="<?= url('student/ticket.php?id=' . $t['id']) ?>" class="lift block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/70 hover:border-brand rounded-2xl p-4 shadow-card">
     <div class="flex items-center justify-between gap-3">
       <div class="min-w-0"><div class="text-xs text-slate-400"><?= e($t['ticket_number']) ?> · <?= e(fmt_date($t['created_at'])) ?></div>
-      <div class="font-semibold text-navy truncate"><?= e($t['subject']) ?></div></div>
+      <div class="font-semibold text-navy dark:text-white truncate"><?= e($t['subject']) ?></div></div>
       <?= status_badge($t['status']) ?>
     </div>
   </a>

@@ -42,11 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 layout_top($t['ticket_number'], 'tickets');
 ?>
-<a href="<?= url('support/tickets.php') ?>" class="text-sm text-brand">← All tickets</a>
+<a href="<?= url('support/tickets.php') ?>" class="text-sm text-brand dark:text-blue-400">← All tickets</a>
 <div class="flex items-start justify-between gap-3 my-4">
   <div><div class="text-xs text-slate-400"><?= e($t['ticket_number']) ?> · <?= e($t['sname']) ?> (<?= e($t['matric_number']) ?>) · <?= e(fmt_date($t['created_at'])) ?></div>
-  <h1 class="text-xl font-bold text-navy"><?= e($t['subject']) ?></h1>
-  <div class="text-xs text-slate-500 mt-1">Assigned to: <?= e($t['aname'] ?? 'nobody yet') ?></div></div>
+  <h1 class="text-xl font-bold text-navy dark:text-white"><?= e($t['subject']) ?></h1>
+  <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Assigned to: <?= e($t['aname'] ?? 'nobody yet') ?></div></div>
   <?= status_badge($t['status']) ?>
 </div>
 
@@ -56,13 +56,13 @@ layout_top($t['ticket_number'], 'tickets');
   <?php endif; ?>
   <?php if ($isOwner): foreach ($next[$t['status']] as $to): ?>
     <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="status"><input type="hidden" name="to" value="<?= e($to) ?>">
-      <button class="rounded-lg border border-slate-300 bg-white hover:bg-slate-50 px-4 py-2 text-sm font-medium">Mark <?= e(ucwords(strtolower($to))) ?></button></form>
+      <button class="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 px-4 py-2 text-sm font-medium">Mark <?= e(ucwords(strtolower($to))) ?></button></form>
   <?php endforeach; endif; ?>
 </div>
 
-<?php if ($t['description']): ?><div class="bg-white border border-slate-200 rounded-2xl p-4 mb-5 text-sm text-slate-600"><?= e($t['description']) ?></div><?php endif; ?>
+<?php if ($t['description']): ?><div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 mb-5 text-sm text-slate-600 dark:text-slate-300"><?= e($t['description']) ?></div><?php endif; ?>
 <?php render_transcript($t['conversation_id'] ? (int)$t['conversation_id'] : null); render_thread($id, 'staff'); ?>
 <?php if ($isOwner && in_array($t['status'], ['IN PROGRESS', 'SOLVED'], true)) reply_form('Reply to student');
-elseif ($t['status'] === 'OPEN') echo '<p class="text-sm text-slate-500">Accept this ticket to reply.</p>';
-elseif ($t['status'] === 'CLOSED') echo '<p class="text-sm text-slate-500">This ticket is closed.</p>'; ?>
+elseif ($t['status'] === 'OPEN') echo '<p class="text-sm text-slate-500 dark:text-slate-400">Accept this ticket to reply.</p>';
+elseif ($t['status'] === 'CLOSED') echo '<p class="text-sm text-slate-500 dark:text-slate-400">This ticket is closed.</p>'; ?>
 <?php layout_bottom();

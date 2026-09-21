@@ -37,3 +37,7 @@ define('CONF_HIGH', 0.75);   // >= answer
 define('CONF_LOW', 0.40);    // <  escalate, in between = clarify
 
 define('SESSION_TIMEOUT', 1800); // 30 minutes
+
+// Student self-registration rules
+define('STUDENT_EMAIL_DOMAIN', 'maaun.edu.ng'); // school email only, e.g. you@maaun.edu.ng
+define('PW_MIN_LEN', 8);

@@ -21,7 +21,7 @@ auth_top('Login', 'Welcome back', 'Log in with your matric number or email');
 ?>
 <form method="post"><?= csrf_field() ?>
   <?php field('identifier', 'Matric number or email'); field('password', 'Password', 'password'); ?>
-  <button class="w-full rounded-xl bg-brand hover:bg-blue-700 text-white font-semibold py-2.5 text-sm shadow-sm transition active:scale-[.99]">Login</button>
+  <button class="w-full rounded-xl bg-gradient-to-r from-brand to-blue-600 hover:from-blue-600 hover:to-brand text-white font-semibold py-2.5 text-sm shadow-sm transition active:scale-[.99]">Login</button>
 </form>
-<p class="text-sm text-slate-500 mt-4">New student? <a class="text-brand font-medium" href="<?= url('register.php') ?>">Create an account</a></p>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-4">New student? <a class="text-brand dark:text-blue-400 font-medium" href="<?= url('register.php') ?>">Create an account</a></p>
 <?php auth_bottom();

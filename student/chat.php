@@ -4,15 +4,15 @@ require_once __DIR__ . '/../includes/layout.php';
 require_role('student');
 layout_top('AI Assistant', 'chat');
 ?>
-<div class="max-w-3xl mx-auto bg-white border border-slate-200/70 rounded-3xl shadow-card flex flex-col overflow-hidden" style="height:calc(100dvh - 13rem);min-height:26rem">
-  <div class="px-5 py-3 border-b border-slate-200 flex items-center gap-3 bg-gradient-to-r from-navy to-[#1a4265] text-white">
+<div class="max-w-3xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/70 rounded-3xl shadow-card flex flex-col overflow-hidden" style="height:calc(100dvh - 13rem);min-height:26rem">
+  <div class="px-5 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3 bg-gradient-to-r from-navy to-[#1a4265] text-white">
     <div class="h-9 w-9 rounded-full bg-white/15 flex items-center justify-center">🤖</div>
     <div><div class="font-semibold text-sm"><?= APP_NAME ?></div><div class="text-xs text-slate-300">Your academic support assistant · <span class="text-emerald-300">● online</span></div></div>
   </div>
-  <div id="log" class="slim-scroll flex-1 overflow-y-auto p-5 space-y-3 bg-slate-50"></div>
-  <form id="form" class="p-3 border-t border-slate-200 flex gap-2 bg-white">
-    <input id="text" maxlength="500" autocomplete="off" placeholder="Type your question..." class="flex-1 rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition">
-    <button class="rounded-xl bg-brand hover:bg-blue-700 text-white px-5 text-sm font-semibold shadow-sm transition active:scale-95" aria-label="Send">➤</button>
+  <div id="log" class="slim-scroll flex-1 overflow-y-auto p-5 space-y-3 bg-slate-50 dark:bg-slate-800"></div>
+  <form id="form" class="p-3 border-t border-slate-200 dark:border-slate-700 flex gap-2 bg-white dark:bg-slate-900">
+    <input id="text" maxlength="500" autocomplete="off" placeholder="Type your question..." class="flex-1 rounded-xl border border-slate-300 dark:border-slate-600 px-3.5 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition">
+    <button class="rounded-xl bg-gradient-to-r from-brand to-blue-600 hover:from-blue-600 hover:to-brand text-white px-5 text-sm font-semibold shadow-sm transition active:scale-95" aria-label="Send">➤</button>
   </form>
 </div>
 <script>
@@ -24,7 +24,7 @@ function bubble(text, who) {
   const w = document.createElement('div'); w.className = who === 'me' ? 'flex justify-end' : 'flex';
   const b = document.createElement('div');
   b.className = 'max-w-[85%] whitespace-pre-line rounded-2xl px-4 py-2.5 text-sm shadow-sm ' +
-    (who === 'me' ? 'bg-brand text-white rounded-br-md' : 'bg-white border border-slate-200 text-slate-800 rounded-bl-md');
+    (who === 'me' ? 'bg-brand text-white rounded-br-md' : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-md');
   b.textContent = text; w.appendChild(b); log.appendChild(w); log.scrollTop = log.scrollHeight; return b;
 }
 function buttons(list) {

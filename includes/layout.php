@@ -30,14 +30,20 @@ function layout_top(string $title, string $active = ''): void {
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0F2A43">
+<meta name="color-scheme" content="light dark">
 <title><?= e($title) ?> · <?= APP_NAME ?></title>
+<script>try{if((localStorage.getItem('uniassist-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark')document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="stylesheet" href="<?= url('assets/tailwind.min.css') ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= url('assets/app.css') ?>">
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen antialiased">
-<div class="flex min-h-screen">
+<body class="bg-slate-100 dark:bg-slate-800 dark:bg-slate-950 text-slate-800 dark:text-slate-200 min-h-screen antialiased">
+<div class="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+  <div class="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-brand/10 dark:bg-brand/20 blur-3xl"></div>
+  <div class="absolute top-1/3 -left-40 h-[28rem] w-[28rem] rounded-full bg-teal-500/10 dark:bg-teal-500/10 blur-3xl"></div>
+</div>
+<div class="flex min-h-screen relative">
   <aside class="hidden md:flex w-72 flex-col fixed inset-y-0 px-5 py-6 text-white" style="background:linear-gradient(180deg,#12334f 0%,#0F2A43 45%,#0a1e33 100%)">
     <div class="flex items-center gap-3 mb-2">
       <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-brand to-teal-600 flex items-center justify-center text-xl shadow-pop">🎓</div>
@@ -48,7 +54,7 @@ function layout_top(string $title, string $active = ''): void {
     <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 mb-2 px-1">Menu</div>
     <nav class="space-y-1 flex-1 overflow-y-auto slim-scroll">
       <?php foreach ($nav as $k => [$label, $href, $icon]): $on = $active === $k; ?>
-        <a href="<?= url($href) ?>" class="side-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm <?= $on ? 'bg-white text-navy font-semibold shadow-card' : 'text-slate-300 hover:bg-white/10 hover:text-white' ?>">
+        <a href="<?= url($href) ?>" class="side-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm <?= $on ? 'bg-white dark:bg-slate-900 text-navy dark:text-white font-semibold shadow-card' : 'text-slate-300 hover:bg-white/10 hover:text-white' ?>">
           <span class="w-5 text-center text-base"><?= $icon ?></span><?= e($label) ?></a>
       <?php endforeach; ?>
     </nav>
@@ -60,20 +66,23 @@ function layout_top(string $title, string $active = ''): void {
     </div>
   </aside>
   <div class="flex-1 md:ml-72 min-w-0 flex flex-col min-h-screen">
-    <header class="sticky top-0 z-20 bg-white/85 backdrop-blur border-b border-slate-200">
+    <header class="sticky top-0 z-20 bg-white/85 dark:bg-slate-900/85 backdrop-blur border-b border-slate-200 dark:border-slate-700/70">
+      <div class="h-0.5 bg-gradient-to-r from-brand via-teal-400 to-brand"></div>
       <div class="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center gap-3">
         <button id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer"
-          class="md:hidden rounded-xl border border-slate-300 bg-white p-2.5 text-navy shadow-sm transition active:scale-95">
+          class="md:hidden rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 p-2.5 text-navy dark:text-white shadow-sm transition active:scale-95">
           <span class="flex flex-col items-center justify-center gap-[5px] h-4 w-5"><span class="bar"></span><span class="bar"></span><span class="bar"></span></span>
         </button>
-        <div class="md:hidden font-extrabold text-navy truncate">🎓 <?= APP_NAME ?></div>
+        <div class="md:hidden font-extrabold text-navy dark:text-white truncate">🎓 <?= APP_NAME ?></div>
         <div class="hidden md:block text-sm text-slate-400"><?= date('l, j F Y') ?></div>
         <div class="flex-1"></div>
-        <span class="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider bg-slate-100 text-slate-600 rounded-full px-2.5 py-1"><?= e($u['role'] ?? '') ?></span>
+        <button id="themeBtn" type="button" aria-label="Toggle dark mode"
+          class="rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:bg-slate-800 p-2.5 text-slate-500 dark:text-slate-400 dark:text-amber-300 shadow-sm transition active:scale-95">🌙</button>
+        <span class="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full px-2.5 py-1"><?= e($u['role'] ?? '') ?></span>
         <div class="hidden sm:flex items-center gap-2">
           <div class="h-8 w-8 rounded-full bg-gradient-to-br from-brand to-teal-600 flex items-center justify-center text-xs font-bold text-white"><?= e($initial) ?></div>
-          <div class="text-xs leading-tight"><div class="font-semibold text-navy max-w-[8rem] truncate"><?= e($u['name'] ?? '') ?></div>
-          <a href="<?= url('logout.php') ?>" class="text-slate-400 hover:text-red-600">Log out</a></div>
+          <div class="text-xs leading-tight"><div class="font-semibold text-navy dark:text-white max-w-[8rem] truncate"><?= e($u['name'] ?? '') ?></div>
+          <a href="<?= url('logout.php') ?>" class="text-slate-400 hover:text-red-600 dark:text-red-400">Log out</a></div>
         </div>
       </div>
     </header>
@@ -89,7 +98,7 @@ function layout_top(string $title, string $active = ''): void {
       <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 mb-2 px-1">Menu</div>
       <nav class="space-y-1 flex-1 overflow-y-auto slim-scroll">
         <?php foreach ($nav as $k => [$label, $href, $icon]): $on = $active === $k; ?>
-          <a href="<?= url($href) ?>" class="side-link flex items-center gap-3 px-3.5 py-3 rounded-xl text-[15px] <?= $on ? 'bg-white text-navy font-semibold shadow-card' : 'text-slate-200 hover:bg-white/10 hover:text-white' ?>">
+          <a href="<?= url($href) ?>" class="side-link flex items-center gap-3 px-3.5 py-3 rounded-xl text-[15px] <?= $on ? 'bg-white dark:bg-slate-900 text-navy dark:text-white font-semibold shadow-card' : 'text-slate-200 hover:bg-white/10 hover:text-white' ?>">
             <span class="w-5 text-center text-base"><?= $icon ?></span><?= e($label) ?></a>
         <?php endforeach; ?>
       </nav>
@@ -102,10 +111,10 @@ function layout_top(string $title, string $active = ''): void {
     </aside>
     <main class="flex-1 p-4 md:p-8"><div class="max-w-6xl mx-auto">
     <?php if ($f = flash()): ?>
-      <div role="alert" class="flash mb-4 flex items-start gap-3 rounded-xl border-l-4 bg-white shadow-card px-4 py-3 text-sm <?= $f['type']==='success' ? 'border-green-500' : 'border-red-500' ?>">
+      <div role="alert" class="flash mb-4 flex items-start gap-3 rounded-xl border-l-4 bg-white dark:bg-slate-900 shadow-card px-4 py-3 text-sm <?= $f['type']==='success' ? 'border-green-500' : 'border-red-500' ?>">
         <span class="mt-0.5"><?= $f['type']==='success' ? '✅' : '⚠️' ?></span>
-        <div class="flex-1 text-slate-700"><?= e($f['msg']) ?></div>
-        <button onclick="this.parentElement.remove()" aria-label="Dismiss" class="text-slate-400 hover:text-slate-600">✕</button>
+        <div class="flex-1 text-slate-700 dark:text-slate-300"><?= e($f['msg']) ?></div>
+        <button onclick="this.parentElement.remove()" aria-label="Dismiss" class="text-slate-400 hover:text-slate-600 dark:text-slate-300">✕</button>
       </div>
     <?php endif;
 }
@@ -116,5 +125,8 @@ function layout_bottom(): void {
   . 'function shut(){d.classList.remove("open");o.classList.remove("show");document.body.classList.remove("overflow-hidden");b.classList.remove("open");b.setAttribute("aria-expanded","false");b.setAttribute("aria-label","Open menu");}'
   . 'b.addEventListener("click",function(){d.classList.contains("open")?shut():open();});'
   . 'if(c)c.addEventListener("click",shut);o.addEventListener("click",shut);'
-  . 'document.addEventListener("keydown",function(e){if(e.key==="Escape")shut();});})();</script></body></html>';
+  . 'document.addEventListener("keydown",function(e){if(e.key==="Escape")shut();});})();</script>'
+  . '<script>(function(){var t=document.getElementById("themeBtn");if(!t)return;'
+  . 'function paint(){var dark=document.documentElement.classList.contains("dark");t.textContent=dark?"☀":"🌙";t.setAttribute("aria-label",dark?"Switch to light mode":"Switch to dark mode");}'
+  . 't.addEventListener("click",function(){var dark=document.documentElement.classList.toggle("dark");try{localStorage.setItem("uniassist-theme",dark?"dark":"light");}catch(e){}paint();});paint();})();</script></body></html>';
 }

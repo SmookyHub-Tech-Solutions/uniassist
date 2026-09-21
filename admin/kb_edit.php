@@ -36,10 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     flash('Knowledge entry saved.', 'success'); redirect('admin/kb.php');
 }
 layout_top($id ? 'Edit entry' : 'Add entry', 'kb');
-$inp = 'mt-1.5 w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition';
-page_head(($id ? 'Edit' : 'Add') . ' knowledge entry', '', '<a href="' . url('admin/kb.php') . '" class="rounded-xl border border-slate-300 bg-white hover:bg-slate-50 px-4 py-2 text-sm font-medium shadow-sm transition">← Knowledge base</a>');
+$inp = 'mt-1.5 w-full rounded-xl border border-slate-300 dark:border-slate-600 px-3.5 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition';
+page_head(($id ? 'Edit' : 'Add') . ' knowledge entry', '', '<a href="' . url('admin/kb.php') . '" class="rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 px-4 py-2 text-sm font-medium shadow-sm transition">← Knowledge base</a>');
 ?>
-<form method="post" class="bg-white border border-slate-200/70 rounded-2xl shadow-card p-6 max-w-2xl space-y-4"><?= csrf_field() ?>
+<form method="post" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/70 rounded-2xl shadow-card p-6 max-w-2xl space-y-4"><?= csrf_field() ?>
   <label class="block text-sm font-medium">Category
     <select name="category_id" id="cat" required class="<?= $inp ?>"><option value="">Select…</option>
       <?php foreach ($cats as $c): ?><option value="<?= $c['id'] ?>" <?= (int)$e['category_id'] === (int)$c['id'] ? 'selected' : '' ?>><?= e($c['name']) ?></option><?php endforeach; ?></select></label>
@@ -50,7 +50,7 @@ page_head(($id ? 'Edit' : 'Add') . ' knowledge entry', '', '<a href="' . url('ad
   <label class="block text-sm font-medium">Answer<textarea name="answer" rows="6" required class="<?= $inp ?>"><?= e($e['answer']) ?></textarea></label>
   <label class="block text-sm font-medium">Keywords (space separated — used when AI is unavailable)<input name="keywords" value="<?= e($e['keywords']) ?>" class="<?= $inp ?>"></label>
   <label class="block text-sm font-medium">Status<select name="status" class="<?= $inp ?>"><option value="active">Active</option><option value="inactive" <?= $e['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option></select></label>
-  <button class="rounded-xl bg-brand hover:bg-blue-700 text-white px-5 py-2.5 text-sm font-semibold shadow-sm transition active:scale-[.99]">Save entry</button>
+  <button class="rounded-xl bg-gradient-to-r from-brand to-blue-600 hover:from-blue-600 hover:to-brand text-white px-5 py-2.5 text-sm font-semibold shadow-sm transition active:scale-[.99]">Save entry</button>
 </form>
 <script>
 const cat = document.getElementById('cat'), issue = document.getElementById('issue');

@@ -25,13 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 layout_top($t['ticket_number'], 'tickets');
 ?>
-<a href="<?= url('student/tickets.php') ?>" class="text-sm text-brand">← All tickets</a>
+<a href="<?= url('student/tickets.php') ?>" class="text-sm text-brand dark:text-blue-400">← All tickets</a>
 <div class="flex items-start justify-between gap-3 my-4">
   <div><div class="text-xs text-slate-400"><?= e($t['ticket_number']) ?> · Created <?= e(fmt_date($t['created_at'])) ?></div>
-  <h1 class="text-xl font-bold text-navy"><?= e($t['subject']) ?></h1></div>
+  <h1 class="text-xl font-bold text-navy dark:text-white"><?= e($t['subject']) ?></h1></div>
   <?= status_badge($t['status']) ?>
 </div>
 <?php render_transcript($t['conversation_id'] ? (int)$t['conversation_id'] : null); render_thread($id, 'student'); ?>
 <?php if ($t['status'] !== 'CLOSED'): reply_form('Send reply'); else: ?>
-  <p class="text-sm text-slate-500">This ticket is closed.</p>
+  <p class="text-sm text-slate-500 dark:text-slate-400">This ticket is closed.</p>
 <?php endif; layout_bottom();
